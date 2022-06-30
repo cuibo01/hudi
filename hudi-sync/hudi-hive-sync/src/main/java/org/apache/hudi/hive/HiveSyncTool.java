@@ -49,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.hudi.sync.common.util.Parquet2SparkSchemaUtils.getSparkTableProperties;
+
 /**
  * Tool to sync a hoodie HDFS table with a hive metastore table. Either use it as a api
  * HiveSyncTool.syncHoodieTable(HiveSyncConfig) or as a command line java -cp hoodie-hive-sync.jar HiveSyncTool [args]

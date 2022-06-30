@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static org.apache.hudi.sync.common.util.Parquet2SparkSchemaUtils.getSparkTableProperties;
+
 /**
  * Adb sync tool is mainly used to sync hoodie tables to Alibaba Cloud AnalyticDB(ADB),
  * it can be used as API `AdbSyncTool.syncHoodieTable(AdbSyncConfig)` or as command

@@ -81,7 +81,7 @@ public class TableOptionProperties {
   public static final String PK_COLUMNS = "pk.columns";
   public static final String COMMENT = "comment";
   public static final String PARTITION_COLUMNS = "partition.columns";
-  public static final String SPARK_SOURCE_PROVIDER = "spark.sql.source.provider";
+  public static final String SPARK_SOURCE_PROVIDER = "spark.sql.sources.provider";
   public static final String SPARK_VERSION = "spark.verison";
   public static final String DEFAULT_SPARK_VERSION = "spark2.4.4";
 

@@ -499,13 +499,13 @@ public class HoodieHiveCatalog extends AbstractCatalog {
 
   private Map<String, String> applyOptionsHook(Map<String, String> options) {
     Map<String, String> properties = new HashMap<>(options);
-    if (!options.containsKey(FlinkOptions.RECORD_KEY_FIELD)) {
+    if (!options.containsKey(FlinkOptions.RECORD_KEY_FIELD.key())) {
       properties.put(FlinkOptions.RECORD_KEY_FIELD.key(), FlinkOptions.RECORD_KEY_FIELD.defaultValue());
     }
-    if (!options.containsKey(FlinkOptions.PRECOMBINE_FIELD)) {
+    if (!options.containsKey(FlinkOptions.PRECOMBINE_FIELD.key())) {
       properties.put(FlinkOptions.PRECOMBINE_FIELD.key(), FlinkOptions.PRECOMBINE_FIELD.defaultValue());
     }
-    if (!options.containsKey(FlinkOptions.TABLE_TYPE)) {
+    if (!options.containsKey(FlinkOptions.TABLE_TYPE.key())) {
       properties.put(FlinkOptions.TABLE_TYPE.key(), FlinkOptions.TABLE_TYPE.defaultValue());
     }
     return properties;

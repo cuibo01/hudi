@@ -18,6 +18,9 @@
 
 package org.apache.hudi.table.catalog;
 
+import org.apache.hudi.configuration.FlinkOptions;
+import org.apache.hudi.exception.HoodieCatalogException;
+
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.TableSchema;
 import org.apache.flink.table.catalog.CatalogBaseTable;
@@ -29,13 +32,13 @@ import org.apache.flink.table.catalog.exceptions.TableAlreadyExistException;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
 import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.hadoop.hive.metastore.api.Table;
-import org.apache.hudi.exception.HoodieCatalogException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.flink.table.factories.FactoryUtil.CONNECTOR;
@@ -69,6 +72,19 @@ public class TestHoodieHiveCatalog {
     if (hoodieCatalog != null) {
       hoodieCatalog.close();
     }
+  }
+
+  @Test
+  public void testCreateAndGetHoodieMORTable() throws Exception {
+    Map<String, String> originOptions = new HashMap<>();
+    originOptions.put(FactoryUtil.CONNECTOR.key(), "hudi");
+    originOptions.put(FlinkOptions.TABLE_TYPE.key(), FlinkOptions.TABLE_TYPE_MERGE_ON_READ);
+    CatalogTable table =
+        new CatalogTableImpl(schema, originOptions, "hudi table");
+    hoodieCatalog.createTable(tablePath, table, false);
+    CatalogBaseTable table1 = hoodieCatalog.getTable(tablePath);
+    assertEquals(table1.getOptions().get(CONNECTOR.key()), "hudi");
+    assertEquals(table1.getOptions().get(FlinkOptions.TABLE_TYPE.key()), FlinkOptions.TABLE_TYPE_MERGE_ON_READ);
   }
 
   @Test

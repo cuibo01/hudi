@@ -23,36 +23,40 @@ import org.apache.hudi.sync.common.util.ConfigUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 /**
- * Base class to sync Hudi meta data with Metastores to make
+ * Base class to sync metadata with metastores to make
  * Hudi table queryable through external systems.
  */
-public abstract class AbstractSyncTool {
-  protected final Configuration conf;
-  protected final FileSystem fs;
-  protected TypedProperties props;
+public abstract class HoodieSyncTool implements AutoCloseable {
 
-  public AbstractSyncTool(TypedProperties props, Configuration conf, FileSystem fs) {
+  protected Properties props;
+  protected Configuration hadoopConf;
+
+  public HoodieSyncTool(Properties props) {
+    this(props, ConfigUtils.createHadoopConf(props));
+  }
+
+  public HoodieSyncTool(Properties props, Configuration hadoopConf) {
     this.props = props;
-    this.conf = conf;
-    this.fs = fs;
+    this.hadoopConf = hadoopConf;
   }
 
   @Deprecated
-  public AbstractSyncTool(Properties props, FileSystem fileSystem) {
-    this(new TypedProperties(props), fileSystem.getConf(), fileSystem);
+  public HoodieSyncTool(TypedProperties props, Configuration conf, FileSystem fs) {
+    this(props, conf);
+  }
+
+  @Deprecated
+  public HoodieSyncTool(Properties props, FileSystem fileSystem) {
+    this(props, fileSystem.getConf());
   }
 
   public abstract void syncHoodieTable();
 
-  protected Map<String, String> getSparkSerdeProperties(boolean readAsOptimized, String basePath) {
-    Map<String, String> sparkSerdeProperties = new HashMap<>();
-    sparkSerdeProperties.put("path", basePath);
-    sparkSerdeProperties.put(ConfigUtils.IS_QUERY_AS_RO_TABLE, String.valueOf(readAsOptimized));
-    return sparkSerdeProperties;
+  @Override
+  public void close() throws Exception {
+    // no op
   }
 }

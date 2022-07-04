@@ -24,7 +24,7 @@ import org.apache.hudi.common.table.TableSchemaResolver;
 import org.apache.hudi.common.util.StringUtils;
 import org.apache.hudi.configuration.FlinkOptions;
 import org.apache.hudi.exception.HoodieIOException;
-import org.apache.hudi.sync.common.util.Parquet2SparkSchemaUtils;
+import org.apache.hudi.sync.common.util.SparkDataSourceTableUtils;
 import org.apache.hudi.util.AvroSchemaConverter;
 
 import org.apache.avro.Schema;
@@ -178,7 +178,7 @@ public class TableOptionProperties {
     Schema schema = AvroSchemaConverter.convertToSchema(catalogTable.getSchema().toPhysicalRowDataType().getLogicalType());
     MessageType messageType = TableSchemaResolver.convertAvroSchemaToParquetMessageType(schema, hadoopConf);
     String sparkVersion = catalogTable.getOptions().getOrDefault(SPARK_VERSION, DEFAULT_SPARK_VERSION);
-    return Parquet2SparkSchemaUtils.getSparkTableProperties(catalogTable.getPartitionKeys(), sparkVersion, 4000, messageType);
+    return SparkDataSourceTableUtils.getSparkTableProperties(catalogTable.getPartitionKeys(), sparkVersion, 4000, messageType);
   }
 
   public static Map<String, String> translateSparkTableProperties2Flink(Map<String, String> options) {

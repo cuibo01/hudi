@@ -404,7 +404,7 @@ public class HoodieHiveCatalog extends AbstractCatalog {
       }
       schema = builder.build();
     } else {
-      LOG.warn("{} does not hive a schema", tablePath);
+      LOG.warn("{} does not have any hoodie schema, and use hive table to covert the catalogBaseTable", tablePath);
       schema = TableOptionProperties.convertTableSchema(hiveTable);
     }
     return CatalogTable.of(schema, parameters.get(COMMENT),
@@ -576,7 +576,10 @@ public class HoodieHiveCatalog extends AbstractCatalog {
       String pkColumns = String.join(",", table.getUnresolvedSchema().getPrimaryKey().get().getColumnNames());
       String recordKey = properties.getOrDefault(FlinkOptions.RECORD_KEY_FIELD.key(), FlinkOptions.RECORD_KEY_FIELD.defaultValue());
       if (!Objects.equals(pkColumns, recordKey)) {
-        throw new HoodieCatalogException(String.format("%s and %s are the different", pkColumns, recordKey));
+        throw new HoodieCatalogException(
+            String.format("If the table has primaryKey, the primaryKey should be the the same as the recordKey, but pk %s and recordKey %s are the different",
+                pkColumns,
+                recordKey));
       }
       properties.put(PK_CONSTRAINT_NAME, table.getUnresolvedSchema().getPrimaryKey().get().getConstraintName());
       properties.put(PK_COLUMNS, pkColumns);

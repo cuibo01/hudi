@@ -16,4 +16,3 @@
 
 org.apache.hudi.table.HoodieTableFactory
 org.apache.hudi.table.catalog.HoodieCatalogFactory
-org.apache.hudi.table.catalog.HoodieHiveCatalogFactory

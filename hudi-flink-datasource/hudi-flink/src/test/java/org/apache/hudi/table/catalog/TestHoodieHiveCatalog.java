@@ -18,6 +18,7 @@
 
 package org.apache.hudi.table.catalog;
 
+import org.apache.hudi.common.model.HoodieTableType;
 import org.apache.hudi.configuration.FlinkOptions;
 import org.apache.hudi.exception.HoodieCatalogException;
 
@@ -36,9 +37,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.apache.flink.table.factories.FactoryUtil.CONNECTOR;
@@ -50,9 +54,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestHoodieHiveCatalog {
   TableSchema schema =
       TableSchema.builder()
+          .field("uuid", DataTypes.INT().notNull())
           .field("name", DataTypes.STRING())
           .field("age", DataTypes.INT())
+          .field("ts", DataTypes.BIGINT())
+          .field("par1", DataTypes.STRING())
+          .primaryKey("uuid")
           .build();
+  List<String> partitions = Collections.singletonList("par1");
   private static HoodieHiveCatalog hoodieCatalog;
   private final ObjectPath tablePath = new ObjectPath("default", "test");
 
@@ -74,28 +83,24 @@ public class TestHoodieHiveCatalog {
     }
   }
 
-  @Test
-  public void testCreateAndGetHoodieMORTable() throws Exception {
+  @ParameterizedTest
+  @EnumSource(value = HoodieTableType.class)
+  public void testCreateAndGetHoodieTable(HoodieTableType tableType) throws Exception {
     Map<String, String> originOptions = new HashMap<>();
     originOptions.put(FactoryUtil.CONNECTOR.key(), "hudi");
-    originOptions.put(FlinkOptions.TABLE_TYPE.key(), FlinkOptions.TABLE_TYPE_MERGE_ON_READ);
-    CatalogTable table =
-        new CatalogTableImpl(schema, originOptions, "hudi table");
-    hoodieCatalog.createTable(tablePath, table, false);
-    CatalogBaseTable table1 = hoodieCatalog.getTable(tablePath);
-    assertEquals(table1.getOptions().get(CONNECTOR.key()), "hudi");
-    assertEquals(table1.getOptions().get(FlinkOptions.TABLE_TYPE.key()), FlinkOptions.TABLE_TYPE_MERGE_ON_READ);
-  }
+    originOptions.put(FlinkOptions.TABLE_TYPE.key(), tableType.toString());
 
-  @Test
-  public void testCreateAndGetHoodieTable() throws Exception {
-    Map<String, String> originOptions =
-        Collections.singletonMap(FactoryUtil.CONNECTOR.key(), "hudi");
     CatalogTable table =
-        new CatalogTableImpl(schema, originOptions, "hudi table");
+        new CatalogTableImpl(schema, partitions, originOptions, "hudi table");
     hoodieCatalog.createTable(tablePath, table, false);
+
     CatalogBaseTable table1 = hoodieCatalog.getTable(tablePath);
     assertEquals(table1.getOptions().get(CONNECTOR.key()), "hudi");
+    assertEquals(table1.getOptions().get(FlinkOptions.TABLE_TYPE.key()), tableType.toString());
+    assertEquals(table1.getOptions().get(FlinkOptions.RECORD_KEY_FIELD.key()), "uuid");
+    assertEquals(table1.getOptions().get(FlinkOptions.PRECOMBINE_FIELD.key()), "ts");
+    assertEquals(table1.getUnresolvedSchema().getPrimaryKey().get().getColumnNames(), Collections.singletonList("uuid"));
+    assertEquals(((CatalogTable)table1).getPartitionKeys(), Collections.singletonList("par1"));
   }
 
   @Test
@@ -111,17 +116,16 @@ public class TestHoodieHiveCatalog {
 
   @Test
   public void testAlterTable() throws Exception {
-    Map<String, String> originOptions =
-        Collections.singletonMap(
-            FactoryUtil.CONNECTOR.key(), "hudi");
+    Map<String, String> originOptions = new HashMap<>();
+    originOptions.put(FactoryUtil.CONNECTOR.key(), "hudi");
     CatalogTable originTable =
-        new CatalogTableImpl(schema, originOptions, "hudi table");
+        new CatalogTableImpl(schema, partitions, originOptions, "hudi table");
     hoodieCatalog.createTable(tablePath, originTable, false);
 
     Table hiveTable = hoodieCatalog.getHiveTable(tablePath);
     Map<String, String> newOptions = hiveTable.getParameters();
     newOptions.put("k", "v");
-    CatalogTable newTable = new CatalogTableImpl(schema, newOptions, "alter hudi table");
+    CatalogTable newTable = new CatalogTableImpl(schema, partitions, newOptions, "alter hudi table");
     hoodieCatalog.alterTable(tablePath, newTable, false);
 
     hiveTable = hoodieCatalog.getHiveTable(tablePath);
@@ -131,11 +135,10 @@ public class TestHoodieHiveCatalog {
 
   @Test
   public void testRenameTable() throws Exception {
-    Map<String, String> originOptions =
-        Collections.singletonMap(
-            FactoryUtil.CONNECTOR.key(), "hudi");
+    Map<String, String> originOptions = new HashMap<>();
+    originOptions.put(FactoryUtil.CONNECTOR.key(), "hudi");
     CatalogTable originTable =
-        new CatalogTableImpl(schema, originOptions, "hudi table");
+        new CatalogTableImpl(schema, partitions, originOptions, "hudi table");
     hoodieCatalog.createTable(tablePath, originTable, false);
 
     hoodieCatalog.renameTable(tablePath, "test1", false);

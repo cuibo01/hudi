@@ -31,9 +31,9 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test cases for {@link HoodieHiveCatalogFactory}.
+ * Test cases for {@link HoodieCatalogFactory}.
  */
-public class TestHoodieHiveCatalogFactory {
+public class TestHoodieCatalogFactory {
   private static final URL CONF_DIR =
       Thread.currentThread().getContextClassLoader().getResource("test-catalog-factory-conf");
 
@@ -44,8 +44,9 @@ public class TestHoodieHiveCatalogFactory {
     final HoodieHiveCatalog expectedCatalog = TestHoodieCatalogUtils.createHiveCatalog(catalogName);
 
     final Map<String, String> options = new HashMap<>();
-    options.put(CommonCatalogOptions.CATALOG_TYPE.key(), HoodieCatalogFactoryOptions.IDENTIFIER);
+    options.put(CommonCatalogOptions.CATALOG_TYPE.key(), HoodieCatalogFactory.IDENTIFIER);
     options.put(HoodieCatalogFactoryOptions.HIVE_CONF_DIR.key(), CONF_DIR.getPath());
+    options.put(HoodieCatalogFactoryOptions.MODE.key(), "hms");
 
     final Catalog actualCatalog =
         FactoryUtil.createCatalog(

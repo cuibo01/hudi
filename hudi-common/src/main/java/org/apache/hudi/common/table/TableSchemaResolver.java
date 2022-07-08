@@ -262,7 +262,7 @@ public class TableSchemaResolver {
     }
   }
 
-  public static MessageType convertAvroSchemaToParquetMessageType(Schema schema, Configuration hadoopConf) {
+  public static MessageType convertAvroSchemaToParquet(Schema schema, Configuration hadoopConf) {
     AvroSchemaConverter avroSchemaConverter = new AvroSchemaConverter(hadoopConf);
     return avroSchemaConverter.convert(schema);
   }

@@ -24,7 +24,6 @@ import org.apache.flink.table.catalog.CommonCatalogOptions;
 
 /** {@link ConfigOption}s for {@link HoodieHiveCatalog}. */
 public class HoodieCatalogFactoryOptions {
-  public static final String IDENTIFIER = "hudi-hive";
   public static final String DEFAULT_DB = "default";
   public static final String HIVE_SITE_FILE = "hive-site.xml";
 
@@ -36,8 +35,10 @@ public class HoodieCatalogFactoryOptions {
   public static final ConfigOption<String> HIVE_CONF_DIR =
       ConfigOptions.key("hive-conf-dir").stringType().noDefaultValue();
 
-  public static final ConfigOption<String> HADOOP_CONF_DIR =
-      ConfigOptions.key("hadoop-conf-dir").stringType().noDefaultValue();
+  public static final ConfigOption<String> MODE =
+      ConfigOptions.key("mode").stringType().defaultValue("dfs");
 
-  private HoodieCatalogFactoryOptions() {}
+  private HoodieCatalogFactoryOptions() {
+
+  }
 }

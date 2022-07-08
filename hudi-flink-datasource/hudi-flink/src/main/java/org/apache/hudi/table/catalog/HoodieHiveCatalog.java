@@ -114,8 +114,8 @@ public class HoodieHiveCatalog extends AbstractCatalog {
   private final HiveConf hiveConf;
   private IMetaStoreClient client;
 
-  public HoodieHiveCatalog(String catalogName, String defaultDatabase, String hiveConf, String hadoopConf) {
-    this(catalogName, defaultDatabase, HoodieCatalogUtil.createHiveConf(hiveConf, hadoopConf), false);
+  public HoodieHiveCatalog(String catalogName, String defaultDatabase, String hiveConf) {
+    this(catalogName, defaultDatabase, HoodieCatalogUtil.createHiveConf(hiveConf), false);
   }
 
   public HoodieHiveCatalog(String catalogName, String defaultDatabase, HiveConf hiveConf, boolean allowEmbedded) {
@@ -127,7 +127,7 @@ public class HoodieHiveCatalog extends AbstractCatalog {
           "Embedded metastore is not allowed. Make sure you have set a valid value for "
               + HiveConf.ConfVars.METASTOREURIS.toString());
     }
-    LOG.info("Created HiveCatalog '{}'", catalogName);
+    LOG.info("Created Hoodie Catalog '{}' in hms mode", catalogName);
   }
 
   @Override
@@ -375,7 +375,7 @@ public class HoodieHiveCatalog extends AbstractCatalog {
           boolean hiveStyle = Arrays.stream(FSUtils.getFs(hoodieTablePath, hiveConf).listStatus(hoodieTablePath))
               .map(fileStatus -> fileStatus.getPath().getName())
               .filter(f -> !f.equals(".hoodie") && !f.equals("default"))
-              .anyMatch(FilePathUtils::hiveStylePartitionMath);
+              .anyMatch(FilePathUtils::isHiveStylePartitioning);
           parameters.put(FlinkOptions.HIVE_STYLE_PARTITIONING.key(), String.valueOf(hiveStyle));
         }
         client.alter_table(tablePath.getDatabaseName(), tablePath.getObjectName(), hiveTable);
@@ -404,7 +404,7 @@ public class HoodieHiveCatalog extends AbstractCatalog {
       }
       schema = builder.build();
     } else {
-      LOG.warn("{} does not have any hoodie schema, and use hive table to covert the catalogBaseTable", tablePath);
+      LOG.warn("{} does not have any hoodie schema, and use hive table schema to infer the table schema", tablePath);
       schema = TableOptionProperties.convertTableSchema(hiveTable);
     }
     return CatalogTable.of(schema, parameters.get(COMMENT),

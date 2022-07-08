@@ -19,6 +19,7 @@
 package org.apache.hudi.sync.common.util;
 
 import org.apache.hudi.common.util.ValidationUtils;
+
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.OriginalType;
 import org.apache.parquet.schema.PrimitiveType;
@@ -32,7 +33,6 @@ import static org.apache.parquet.schema.Type.Repetition.OPTIONAL;
  * in spark project.
  */
 public class Parquet2SparkSchemaUtils {
-
   public static String convertToSparkSchemaJson(GroupType parquetSchema) {
     String fieldsJsonString = parquetSchema.getFields().stream().map(field -> {
       switch (field.getRepetition()) {

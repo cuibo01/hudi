@@ -86,6 +86,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -809,18 +810,18 @@ public class HoodieHiveCatalog extends AbstractCatalog {
   @Override
   public List<String> listFunctions(String databaseName)
       throws DatabaseNotExistException, CatalogException {
-    throw new HoodieCatalogException("Not supported.");
+    return Collections.emptyList();
   }
 
   @Override
   public CatalogFunction getFunction(ObjectPath functionPath)
       throws FunctionNotExistException, CatalogException {
-    throw new HoodieCatalogException("Not supported.");
+    throw new FunctionNotExistException(getName(), functionPath);
   }
 
   @Override
   public boolean functionExists(ObjectPath functionPath) throws CatalogException {
-    throw new HoodieCatalogException("Not supported.");
+    return false;
   }
 
   @Override

@@ -276,12 +276,12 @@
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>javax.transcation</groupId>
+                    <groupId>javax.transaction</groupId>
                     <artifactId>jta</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>javax.transcation</groupId>
-                    <artifactId>transcation-api</artifactId>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>transaction-api</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>javax.mail</groupId>

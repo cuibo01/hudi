@@ -28,7 +28,7 @@ public class TestHoodieCatalogUtils {
   private static final String HIVE_WAREHOUSE_URI_FORMAT =
       "jdbc:derby:;databaseName=%s;create=true";
 
-  private static final String TEST_CATALOG_NAME = "test-catalog";
+  private static final String TEST_CATALOG_NAME = "test_catalog";
 
   private static final org.junit.rules.TemporaryFolder TEMPORARY_FOLDER = new org.junit.rules.TemporaryFolder();
 

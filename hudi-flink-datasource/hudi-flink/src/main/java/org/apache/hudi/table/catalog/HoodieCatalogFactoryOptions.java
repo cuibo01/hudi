@@ -38,6 +38,9 @@ public class HoodieCatalogFactoryOptions {
   public static final ConfigOption<String> MODE =
       ConfigOptions.key("mode").stringType().defaultValue("dfs");
 
+  public static final ConfigOption<Boolean> INIT_FS_TABLE =
+      ConfigOptions.key("init.fs.table").booleanType().defaultValue(true);
+
   private HoodieCatalogFactoryOptions() {
 
   }

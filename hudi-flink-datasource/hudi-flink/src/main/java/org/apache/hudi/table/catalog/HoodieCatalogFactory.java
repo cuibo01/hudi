@@ -58,7 +58,8 @@ public class HoodieCatalogFactory implements CatalogFactory {
       return new HoodieHiveCatalog(
           context.getName(),
           helper.getOptions().get(HoodieCatalogFactoryOptions.DEFAULT_DATABASE),
-          helper.getOptions().get(HoodieCatalogFactoryOptions.HIVE_CONF_DIR));
+          helper.getOptions().get(HoodieCatalogFactoryOptions.HIVE_CONF_DIR),
+          helper.getOptions().get(HoodieCatalogFactoryOptions.INIT_FS_TABLE));
     } else if (helper.getOptions().get(HoodieCatalogFactoryOptions.MODE).equalsIgnoreCase("dfs")) {
       return new HoodieCatalog(
           context.getName(),
@@ -81,6 +82,7 @@ public class HoodieCatalogFactory implements CatalogFactory {
     options.add(HoodieCatalogFactoryOptions.HIVE_CONF_DIR);
     options.add(HoodieCatalogFactoryOptions.MODE);
     options.add(CATALOG_PATH);
+    options.add(HoodieCatalogFactoryOptions.INIT_FS_TABLE);
     return options;
   }
 }

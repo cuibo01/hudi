@@ -42,6 +42,7 @@ public class TestHoodieCatalogUtils {
         name,
         null,
         createHiveConf(),
+        true,
         true);
   }
 

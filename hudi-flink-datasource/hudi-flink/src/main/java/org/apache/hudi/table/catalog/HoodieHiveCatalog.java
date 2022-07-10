@@ -112,15 +112,17 @@ public class HoodieHiveCatalog extends AbstractCatalog {
   private static final Logger LOG = LoggerFactory.getLogger(HoodieHiveCatalog.class);
 
   private final HiveConf hiveConf;
+  private final boolean iniTable;
   private IMetaStoreClient client;
 
-  public HoodieHiveCatalog(String catalogName, String defaultDatabase, String hiveConf) {
-    this(catalogName, defaultDatabase, HoodieCatalogUtil.createHiveConf(hiveConf), false);
+  public HoodieHiveCatalog(String catalogName, String defaultDatabase, String hiveConf, boolean iniTable) {
+    this(catalogName, defaultDatabase, HoodieCatalogUtil.createHiveConf(hiveConf), iniTable, false);
   }
 
-  public HoodieHiveCatalog(String catalogName, String defaultDatabase, HiveConf hiveConf, boolean allowEmbedded) {
+  public HoodieHiveCatalog(String catalogName, String defaultDatabase, HiveConf hiveConf, boolean iniTable, boolean allowEmbedded) {
     super(catalogName, defaultDatabase == null ? DEFAULT_DB : defaultDatabase);
     this.hiveConf = hiveConf;
+    this.iniTable = iniTable;
     if (!allowEmbedded) {
       checkArgument(
           !HoodieCatalogUtil.isEmbeddedMetastore(this.hiveConf),
@@ -448,6 +450,10 @@ public class HoodieHiveCatalog extends AbstractCatalog {
   }
 
   private void initTableIfNotExists(ObjectPath tablePath, CatalogTable catalogTable) {
+    if (!iniTable) {
+      LOG.info("Skip init table.");
+      return;
+    }
     Configuration flinkConf = Configuration.fromMap(applyOptionsHook(catalogTable.getOptions()));
     flinkConf.addAllToProperties(hiveConf.getAllProperties());
     final String avroSchema = AvroSchemaConverter.convertToSchema(catalogTable.getSchema().toPhysicalRowDataType().getLogicalType()).toString();
@@ -713,12 +719,19 @@ public class HoodieHiveCatalog extends AbstractCatalog {
 
     try {
       Table hiveTable = getHiveTable(tablePath);
+      if (!hiveTable.getParameters().getOrDefault(FlinkOptions.TABLE_TYPE.key(), FlinkOptions.TABLE_TYPE.defaultValue())
+          .equalsIgnoreCase(newCatalogTable.getOptions().getOrDefault(FlinkOptions.TABLE_TYPE.key(), FlinkOptions.TABLE_TYPE.defaultValue()))
+          || !hiveTable.getParameters().getOrDefault(FlinkOptions.INDEX_TYPE.key(), FlinkOptions.INDEX_TYPE.defaultValue())
+          .equalsIgnoreCase(newCatalogTable.getOptions().getOrDefault(FlinkOptions.INDEX_TYPE.key(), FlinkOptions.INDEX_TYPE.defaultValue()))) {
+        throw new HoodieCatalogException("Hoodie catalog does not support to alter table type and index type");
+      }
     } catch (TableNotExistException e) {
       if (!ignoreIfNotExists) {
         throw e;
       }
       return;
     }
+
     try {
       boolean isMorTable = newCatalogTable.getOptions().getOrDefault(FlinkOptions.TABLE_TYPE.key(),
           FlinkOptions.TABLE_TYPE.defaultValue()).equalsIgnoreCase(FlinkOptions.TABLE_TYPE_MERGE_ON_READ);

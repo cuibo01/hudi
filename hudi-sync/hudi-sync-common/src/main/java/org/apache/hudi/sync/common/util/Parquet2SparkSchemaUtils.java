@@ -18,12 +18,21 @@
 
 package org.apache.hudi.sync.common.util;
 
+import org.apache.hudi.common.util.StringUtils;
 import org.apache.hudi.common.util.ValidationUtils;
 import org.apache.parquet.schema.GroupType;
+import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.OriginalType;
 import org.apache.parquet.schema.PrimitiveType;
 import org.apache.parquet.schema.Type;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.parquet.schema.OriginalType.UTF8;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BINARY;
 import static org.apache.parquet.schema.Type.Repetition.OPTIONAL;
 
 /**
@@ -32,7 +41,6 @@ import static org.apache.parquet.schema.Type.Repetition.OPTIONAL;
  * in spark project.
  */
 public class Parquet2SparkSchemaUtils {
-
   public static String convertToSparkSchemaJson(GroupType parquetSchema) {
     String fieldsJsonString = parquetSchema.getFields().stream().map(field -> {
       switch (field.getRepetition()) {
